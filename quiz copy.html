@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quipper-Style Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            background: #004080;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            display: block;
+            background: #0059b3;
+        }
+        .sidebar a:hover {
+            background: #0073e6;
+        }
+        .quiz-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            margin: auto;
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .options button:hover, .selected {
+            background: #d9ebff;
+            border-color: #0073e6;
+        }
+        .answer-btn {
+            width: 100%;
+            background: #0073e6;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Quiz</h2>
+        <a href="#">Question 1</a>
+        <a href="#">Question 2</a>
+        <a href="#">Question 3</a>
+        <a href="#">Question 4</a>
+        <a href="#">Question 5</a>
+    </div>
+    <div class="quiz-container">
+        <div id="quiz">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+            <button class="answer-btn" onclick="nextQuestion()">Answer</button>
+        </div>
+        <div id="result" class="hidden">
+            <h2>Your Score: <span id="score"></span>/10</h2>
+            <button class="answer-btn" onclick="restartQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "What is 2 + 2?", options: ["3", "4", "5"], answer: 1 },
+            { question: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris"], answer: 2 },
+            { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter"], answer: 1 },
+            { question: "Who wrote 'To Kill a Mockingbird'?", options: ["Harper Lee", "J.K. Rowling", "Ernest Hemingway"], answer: 0 },
+            { question: "What is the chemical symbol for gold?", options: ["Au", "Ag", "Pb"], answer: 0 },
+            { question: "What is the square root of 64?", options: ["6", "8", "10"], answer: 1 },
+            { question: "Which ocean is the largest?", options: ["Atlantic", "Pacific", "Indian"], answer: 1 },
+            { question: "Who painted the Mona Lisa?", options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci"], answer: 2 },
+            { question: "What is the boiling point of water in Celsius?", options: ["90", "100", "110"], answer: 1 },
+            { question: "Which is the longest river in the world?", options: ["Amazon", "Nile", "Yangtze"], answer: 1 }
+        ];
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function loadQuestion() {
+            const questionElem = document.getElementById("question");
+            const optionsElem = document.getElementById("options");
+            questionElem.textContent = quizData[currentQuestion].question;
+            optionsElem.innerHTML = "";
+            
+            quizData[currentQuestion].options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index, button);
+                if (userAnswers[currentQuestion] === index) button.classList.add("selected");
+                optionsElem.appendChild(button);
+            });
+        }
+
+        function selectAnswer(index, button) {
+            userAnswers[currentQuestion] = index;
+            document.querySelectorAll(".options button").forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+        }
+
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] !== null) {
+                if (currentQuestion < quizData.length - 1) {
+                    currentQuestion++;
+                    loadQuestion();
+                } else {
+                    finishQuiz();
+                }
+            } else {
+                alert("Please select an answer!");
+            }
+        }
+
+        function finishQuiz() {
+            const score = userAnswers.filter((ans, i) => ans === quizData[i].answer).length;
+            document.getElementById("quiz").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+            document.getElementById("score").textContent = score;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers.fill(null);
+            document.getElementById("result").classList.add("hidden");
+            document.getElementById("quiz").classList.remove("hidden");
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

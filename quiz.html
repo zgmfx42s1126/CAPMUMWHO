@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        .quiz-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        td input {
+            margin-right: 10px;
+        }
+        .lives {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: red;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        #submit {
+            background: #007BFF;
+        }
+        #submit:hover {
+            background: #0056b3;
+        }
+        #submit:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+        #restart {
+            background: #28a745;
+        }
+        #restart:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Programming Quiz</h1>
+        <div class="lives" id="lives">❤️❤️❤️</div>
+
+        <form id="quiz-form">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Choices</th>
+                    </tr>
+                </thead>
+                <tbody id="quiz-body"></tbody>
+            </table>
+            <button type="button" id="submit" onclick="checkAnswers()" disabled>Submit</button>
+            <button type="button" id="restart" onclick="restartQuiz()" style="display: none;">Retake Quiz</button>
+        </form>
+
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const quizData = [
+            {question: "What does HTML stand for?", choices: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language"], answer: 0},
+            {question: "Which programming language is known as the language of the web?", choices: ["Java", "Python", "C++", "JavaScript"], answer: 3},
+            {question: "What does CSS stand for?", choices: ["Cascading Style Sheets", "Creative Style System", "Computer Style Syntax", "Code Styling Structure"], answer: 0},
+            {question: "What is the correct syntax for a function in JavaScript?", choices: ["def myFunction()", "function myFunction()", "func myFunction()", "void myFunction()"], answer: 1},
+            {question: "Which of the following is a JavaScript framework?", choices: ["Django", "Laravel", "React", "Flask"], answer: 2},
+            {question: "True or False: Python is a compiled language.", choices: ["True", "False"], answer: 1},
+            {question: "Which of these is used to style a webpage?", choices: ["HTML", "CSS", "JavaScript", "Python"], answer: 1},
+            {question: "Which of the following is NOT a programming language?", choices: ["Ruby", "Swift", "Bootstrap", "Go"], answer: 2},
+            {question: "What symbol is used for comments in JavaScript?", choices: ["//", "#", "<!-- -->", "**"], answer: 0},
+            {question: "Which of these is a backend programming language?", choices: ["JavaScript", "HTML", "Python", "CSS"], answer: 2}
+        ];
+
+        let attempts = 3;
+
+        function loadQuestions() {
+            const quizBody = document.getElementById("quiz-body");
+            quizBody.innerHTML = "";
+            quizData.forEach((q, qIndex) => {
+                const row = document.createElement("tr");
+                let choicesHTML = "";
+                q.choices.forEach((choice, cIndex) => {
+                    choicesHTML += `
+                        <label>
+                            <input type="radio" name="question${qIndex}" value="${cIndex}" onclick="validateAnswers()">
+                            ${choice}
+                        </label><br>
+                    `;
+                });
+                row.innerHTML = `<td>${q.question}</td><td>${choicesHTML}</td>`;
+                quizBody.appendChild(row);
+            });
+        }
+
+        function validateAnswers() {
+            const allAnswered = quizData.every((_, index) =>
+                document.querySelector(`input[name="question${index}"]:checked`)
+            );
+            document.getElementById("submit").disabled = !allAnswered;
+        }
+
+        function checkAnswers() {
+            let score = 0;
+            let totalQuestions = quizData.length;
+            quizData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                if (selected && parseInt(selected.value) === q.answer) {
+                    score++;
+                }
+            });
+
+            document.getElementById("result").innerHTML = `<h2>You scored ${score} out of ${totalQuestions}</h2>`;
+            document.getElementById("submit").style.display = "none";
+            document.getElementById("restart").style.display = "block";
+
+            attempts--;
+            updateLives();
+        }
+
+        function restartQuiz() {
+            if (attempts > 0) {
+                loadQuestions();
+                document.getElementById("result").innerHTML = "";
+                document.getElementById("submit").style.display = "block";
+                document.getElementById("restart").style.display = "none";
+                document.getElementById("submit").disabled = true;
+            } else {
+                document.getElementById("result").innerHTML = "<h2>No more attempts left!</h2>";
+            }
+        }
+
+        function updateLives() {
+            document.getElementById("lives").innerHTML = "❤️".repeat(attempts);
+        }
+
+        loadQuestions();
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Logo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .logo {
+            width: 1200px;
+            height: 1200px;
+            animation: spin 3s linear infinite;
+            position: absolute;
+            right: -300px; /* Move to the right side */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        @keyframes spin {
+            from {
+                transform: translateY(-50%) rotate(0deg);
+            }
+            to {
+                transform: translateY(-50%) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="assets/images/log.png" alt="Spinning Logo" class="logo">
+</body>
+</html>
