@@ -14,11 +14,16 @@
         }
         .sidebar {
             width: 250px;
-            background: #004080;
+            background: #3498db;
             color: white;
             padding: 20px;
             display: flex;
             flex-direction: column;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .sidebar.hidden {
+            transform: translateX(-100%);
         }
         .sidebar h2 {
             font-size: 18px;
@@ -31,21 +36,23 @@
             border-radius: 5px;
             margin: 5px 0;
             display: block;
-            background: #0059b3;
+            background: #2980b9;
+            text-align: center;
         }
         .sidebar a:hover {
-            background: #0073e6;
+            background: #1f6691;
         }
         .quiz-container {
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 600px;
+            width: 400px;
+            text-align: center;
             margin: auto;
         }
         .question {
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 15px;
         }
         .options button {
@@ -53,50 +60,59 @@
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            border: 1px solid #ccc;
-            background: white;
+            border: none;
+            background: #3498db;
+            color: white;
             cursor: pointer;
             border-radius: 5px;
-            text-align: left;
         }
-        .options button:hover, .selected {
-            background: #d9ebff;
-            border-color: #0073e6;
+        .options button:hover {
+            background: #2980b9;
         }
-        .answer-btn {
-            width: 100%;
-            background: #0073e6;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
+        .controls {
             margin-top: 20px;
-            font-size: 16px;
         }
         .hidden { display: none; }
+        .score-animate { font-size: 24px; font-weight: bold; color: #e74c3c; }
+        .toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 250px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: left 0.3s ease;
+        }
+        .sidebar.hidden + .toggle-btn {
+            left: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Quiz</h2>
-        <a href="#">Question 1</a>
-        <a href="#">Question 2</a>
-        <a href="#">Question 3</a>
-        <a href="#">Question 4</a>
-        <a href="#">Question 5</a>
+    <div class="sidebar" id="sidebar">
+        <h2>Questions</h2>
+        <div id="question-list"></div>
     </div>
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
     <div class="quiz-container">
         <div id="quiz">
             <div id="question" class="question"></div>
             <div id="options" class="options"></div>
-            <button class="answer-btn" onclick="nextQuestion()">Answer</button>
+            <div class="controls">
+                <button onclick="prevQuestion()" id="prevBtn">Previous</button>
+                <button onclick="nextQuestion()" id="nextBtn">Next</button>
+                <button onclick="finishQuiz()" id="finishBtn" class="hidden">Finish Quiz</button>
+            </div>
         </div>
         <div id="result" class="hidden">
-            <h2>Your Score: <span id="score"></span>/10</h2>
-            <button class="answer-btn" onclick="restartQuiz()">Restart Quiz</button>
+            <h2>Your Score: <span id="score" class="score-animate"></span>/10</h2>
+            <button onclick="restartQuiz()">Restart Quiz</button>
         </div>
     </div>
-
+    
     <script>
         const quizData = [
             { question: "What is 2 + 2?", options: ["3", "4", "5"], answer: 1 },
@@ -114,54 +130,32 @@
         let userAnswers = new Array(quizData.length).fill(null);
 
         function loadQuestion() {
-            const questionElem = document.getElementById("question");
+            document.getElementById("question").textContent = quizData[currentQuestion].question;
             const optionsElem = document.getElementById("options");
-            questionElem.textContent = quizData[currentQuestion].question;
             optionsElem.innerHTML = "";
-            
             quizData[currentQuestion].options.forEach((option, index) => {
                 const button = document.createElement("button");
                 button.textContent = option;
-                button.onclick = () => selectAnswer(index, button);
-                if (userAnswers[currentQuestion] === index) button.classList.add("selected");
+                button.onclick = () => selectAnswer(index);
+                if (userAnswers[currentQuestion] === index) button.style.background = "#2ecc71";
                 optionsElem.appendChild(button);
             });
+            document.getElementById("finishBtn").classList.toggle("hidden", userAnswers.includes(null));
         }
 
-        function selectAnswer(index, button) {
-            userAnswers[currentQuestion] = index;
-            document.querySelectorAll(".options button").forEach(btn => btn.classList.remove("selected"));
-            button.classList.add("selected");
-        }
-
-        function nextQuestion() {
-            if (userAnswers[currentQuestion] !== null) {
-                if (currentQuestion < quizData.length - 1) {
-                    currentQuestion++;
-                    loadQuestion();
-                } else {
-                    finishQuiz();
-                }
-            } else {
-                alert("Please select an answer!");
-            }
-        }
-
+        function selectAnswer(index) { userAnswers[currentQuestion] = index; loadQuestion(); }
+        function nextQuestion() { if (currentQuestion < quizData.length - 1) { currentQuestion++; loadQuestion(); } }
+        function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; loadQuestion(); } }
         function finishQuiz() {
-            const score = userAnswers.filter((ans, i) => ans === quizData[i].answer).length;
+            let score = userAnswers.filter((ans, i) => ans === quizData[i].answer).length;
             document.getElementById("quiz").classList.add("hidden");
             document.getElementById("result").classList.remove("hidden");
             document.getElementById("score").textContent = score;
         }
-
-        function restartQuiz() {
-            currentQuestion = 0;
-            userAnswers.fill(null);
-            document.getElementById("result").classList.add("hidden");
-            document.getElementById("quiz").classList.remove("hidden");
-            loadQuestion();
-        }
-
+        function restartQuiz() { currentQuestion = 0; userAnswers.fill(null); document.getElementById("result").classList.add("hidden"); document.getElementById("quiz").classList.remove("hidden"); loadQuestion(); }
+        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("hidden"); }
+        function generateQuestionList() { document.getElementById("question-list").innerHTML = quizData.map((q, i) => `<a href="#" onclick="currentQuestion=${i}; loadQuestion(); return false;">Question ${i+1}</a>`).join(" "); }
+        generateQuestionList();
         loadQuestion();
     </script>
 </body>
