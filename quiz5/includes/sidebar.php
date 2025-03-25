@@ -107,6 +107,15 @@
                     </a>
                 </li>
                 
+
+
+                <li class="app-sidebar__heading">Certificate</li>
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#feedbacksModal" >
+                        Add Feedbacks                        
+                    </a>
+                </li>
+                
             </ul>
         </div>
     </div>
